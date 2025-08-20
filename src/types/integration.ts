@@ -5,8 +5,6 @@ export interface Integration {
   type: string;
   url?: string;
   username?: string;
-  password?: string;
-  api_key?: string;
   created_at: string;
   updated_at: string;
 }

@@ -40,8 +40,8 @@ export function IntegrationForm({ integration, onSubmit, onCancel, isLoading }: 
       type: integration?.type || "",
       url: integration?.url || "",
       username: integration?.username || "",
-      password: integration?.password || "",
-      api_key: integration?.api_key || "",
+      password: "",
+      api_key: "",
     },
   });
 

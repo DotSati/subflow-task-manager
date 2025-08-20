@@ -40,7 +40,6 @@ export type Database = {
       }
       integrations: {
         Row: {
-          api_key: string | null
           created_at: string
           encrypted_api_key: string | null
           encrypted_api_key_iv: string | null
@@ -48,7 +47,6 @@ export type Database = {
           encrypted_password_iv: string | null
           id: string
           name: string
-          password: string | null
           type: string
           updated_at: string
           url: string | null
@@ -56,7 +54,6 @@ export type Database = {
           username: string | null
         }
         Insert: {
-          api_key?: string | null
           created_at?: string
           encrypted_api_key?: string | null
           encrypted_api_key_iv?: string | null
@@ -64,7 +61,6 @@ export type Database = {
           encrypted_password_iv?: string | null
           id?: string
           name: string
-          password?: string | null
           type: string
           updated_at?: string
           url?: string | null
@@ -72,7 +68,6 @@ export type Database = {
           username?: string | null
         }
         Update: {
-          api_key?: string | null
           created_at?: string
           encrypted_api_key?: string | null
           encrypted_api_key_iv?: string | null
@@ -80,7 +75,6 @@ export type Database = {
           encrypted_password_iv?: string | null
           id?: string
           name?: string
-          password?: string | null
           type?: string
           updated_at?: string
           url?: string | null
