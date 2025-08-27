@@ -42,6 +42,7 @@ interface SubtaskGroupProps {
   onDeleteSubtask: (subtaskId: string) => void;
   onCompleteSubtask: (subtaskId: string) => void;
   onSkipSubtask: (subtaskId: string) => void;
+  onSkipAllSubtasksInGroup: (groupId: string) => void;
   onCopySubtaskUrl: (subtaskId: string) => void;
   groupEditData: {[key: string]: string};
   onSetGroupEditData: (data: {[key: string]: string}) => void;
@@ -66,6 +67,7 @@ export const SubtaskGroup = ({
   onDeleteSubtask,
   onCompleteSubtask,
   onSkipSubtask,
+  onSkipAllSubtasksInGroup,
   onCopySubtaskUrl,
   groupEditData,
   onSetGroupEditData,
@@ -156,6 +158,15 @@ export const SubtaskGroup = ({
                     >
                       <Plus className="h-3 w-3 mr-1" />
                       Add
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onSkipAllSubtasksInGroup(group.id)}
+                      className="h-6 px-2 text-xs text-orange-600 hover:text-orange-700"
+                      disabled={group.subtasks.length === 0}
+                    >
+                      Skip All
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>

@@ -20,6 +20,7 @@ interface SubtasksListProps {
   onDeleteSubtask: (subtaskId: string) => void;
   onCompleteSubtask: (subtaskId: string) => void;
   onSkipSubtask: (subtaskId: string) => void;
+  onSkipAllSubtasksInGroup: (groupId: string) => void;
   onUpdateGroup: (groupId: string, groupName: string) => void;
   onDeleteGroup: (groupId: string) => void;
   onCopySubtaskUrl: (subtaskId: string) => void;
@@ -36,6 +37,7 @@ export const SubtasksList = ({
   onDeleteSubtask,
   onCompleteSubtask,
   onSkipSubtask,
+  onSkipAllSubtasksInGroup,
   onUpdateGroup,
   onDeleteGroup,
   onCopySubtaskUrl,
@@ -195,28 +197,29 @@ export const SubtasksList = ({
                 >
                   {sortedSubtaskGroups.map((group, groupIndex) => (
                      <SubtaskGroup
-                       key={group.id}
-                       group={group}
-                       index={groupIndex}
-                       isExpanded={expandedGroups.has(group.id)}
-                       editingGroupId={editingGroupId}
-                       showAddSubtaskInGroup={showAddSubtaskInGroup}
-                       onToggleExpansion={toggleGroupExpansion}
-                       onEditGroup={handleEditGroup}
-                       onUpdateGroup={handleUpdateGroup}
-                       onCancelGroupEdit={handleCancelGroupEdit}
-                       onDeleteGroup={onDeleteGroup}
-                       onSetShowAddSubtask={setShowAddSubtaskInGroup}
-                       onAddSubtaskToGroup={onAddSubtaskToGroup}
-                       onUpdateSubtask={onUpdateSubtask}
-                       onDeleteSubtask={onDeleteSubtask}
-                       onCompleteSubtask={onCompleteSubtask}
-                       onSkipSubtask={onSkipSubtask}
-                       onCopySubtaskUrl={onCopySubtaskUrl}
-                       groupEditData={groupEditData}
-                       onSetGroupEditData={setGroupEditData}
-                       highlightSubtaskId={highlightSubtaskId}
-                     />
+                        key={group.id}
+                        group={group}
+                        index={groupIndex}
+                        isExpanded={expandedGroups.has(group.id)}
+                        editingGroupId={editingGroupId}
+                        showAddSubtaskInGroup={showAddSubtaskInGroup}
+                        onToggleExpansion={toggleGroupExpansion}
+                        onEditGroup={handleEditGroup}
+                        onUpdateGroup={handleUpdateGroup}
+                        onCancelGroupEdit={handleCancelGroupEdit}
+                        onDeleteGroup={onDeleteGroup}
+                        onSetShowAddSubtask={setShowAddSubtaskInGroup}
+                        onAddSubtaskToGroup={onAddSubtaskToGroup}
+                        onUpdateSubtask={onUpdateSubtask}
+                        onDeleteSubtask={onDeleteSubtask}
+                        onCompleteSubtask={onCompleteSubtask}
+                        onSkipSubtask={onSkipSubtask}
+                        onSkipAllSubtasksInGroup={onSkipAllSubtasksInGroup}
+                        onCopySubtaskUrl={onCopySubtaskUrl}
+                        groupEditData={groupEditData}
+                        onSetGroupEditData={setGroupEditData}
+                        highlightSubtaskId={highlightSubtaskId}
+                      />
                   ))}
                   {provided.placeholder}
                 </div>

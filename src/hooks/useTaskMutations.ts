@@ -42,6 +42,12 @@ export const useTaskMutations = (taskId: string) => {
     onSuccess: invalidateQueries,
   });
 
+  const skipAllSubtasksInGroupMutation = useMutation({
+    mutationFn: (groupId: string) => 
+      taskService.skipAllSubtasksInGroup(groupId),
+    onSuccess: invalidateQueries,
+  });
+
   const addSubtaskGroupMutation = useMutation({
     mutationFn: ({ taskId, groupName }: { taskId: string; groupName: string }) => 
       taskService.addSubtaskGroup(taskId, groupName),
@@ -115,6 +121,7 @@ export const useTaskMutations = (taskId: string) => {
     deleteSubtaskMutation,
     completeSubtaskMutation,
     skipSubtaskMutation,
+    skipAllSubtasksInGroupMutation,
     addSubtaskGroupMutation,
     updateSubtaskGroupMutation,
     deleteSubtaskGroupMutation,

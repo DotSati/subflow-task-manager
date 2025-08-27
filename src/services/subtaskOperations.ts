@@ -163,6 +163,22 @@ export const subtaskOperations: SubtaskServiceInterface = {
     }
   },
 
+  // Skip all subtasks in a group
+  async skipAllSubtasksInGroup(groupId: string): Promise<void> {
+    const { error } = await supabase
+      .from('subtasks')
+      .update({
+        skipped: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('subtask_group_id', groupId);
+
+    if (error) {
+      console.error('Error skipping all subtasks in group:', error);
+      throw error;
+    }
+  },
+
   // Enhanced reordering functions with proper order index updates
   async reorderSubtasks(subtaskIds: string[], groupId?: string): Promise<void> {
     const promises = subtaskIds.map((id, index) =>
