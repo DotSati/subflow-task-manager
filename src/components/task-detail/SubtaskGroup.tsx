@@ -43,6 +43,7 @@ interface SubtaskGroupProps {
   onCompleteSubtask: (subtaskId: string) => void;
   onSkipSubtask: (subtaskId: string) => void;
   onSkipAllSubtasksInGroup: (groupId: string) => void;
+  onCompleteAllSubtasksInGroup: (groupId: string) => void;
   onCopySubtaskUrl: (subtaskId: string) => void;
   groupEditData: {[key: string]: string};
   onSetGroupEditData: (data: {[key: string]: string}) => void;
@@ -68,6 +69,7 @@ export const SubtaskGroup = ({
   onCompleteSubtask,
   onSkipSubtask,
   onSkipAllSubtasksInGroup,
+  onCompleteAllSubtasksInGroup,
   onCopySubtaskUrl,
   groupEditData,
   onSetGroupEditData,
@@ -158,6 +160,15 @@ export const SubtaskGroup = ({
                     >
                       <Plus className="h-3 w-3 mr-1" />
                       Add
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onCompleteAllSubtasksInGroup(group.id)}
+                      className="h-6 px-2 text-xs text-green-600 hover:text-green-700"
+                      disabled={group.subtasks.length === 0}
+                    >
+                      {group.subtasks.every((s: any) => s.completeDate) ? 'Uncomplete All' : 'Complete All'}
                     </Button>
                     <Button
                       variant="ghost"

@@ -26,6 +26,7 @@ export const TaskDetail = ({ task, onBack, highlightSubtaskId }: TaskDetailProps
     completeSubtaskMutation,
     skipSubtaskMutation,
     skipAllSubtasksInGroupMutation,
+    completeAllSubtasksInGroupMutation,
     addSubtaskGroupMutation,
     updateSubtaskGroupMutation,
     deleteSubtaskGroupMutation,
@@ -74,6 +75,7 @@ export const TaskDetail = ({ task, onBack, highlightSubtaskId }: TaskDetailProps
         onCompleteSubtask={(subtaskId) => completeSubtaskMutation.mutate(subtaskId)}
         onSkipSubtask={(subtaskId) => skipSubtaskMutation.mutate(subtaskId)}
         onSkipAllSubtasksInGroup={(groupId) => skipAllSubtasksInGroupMutation.mutate(groupId)}
+        onCompleteAllSubtasksInGroup={(groupId) => completeAllSubtasksInGroupMutation.mutate(groupId)}
         onUpdateGroup={(groupId, groupName) => updateSubtaskGroupMutation.mutate({ groupId, groupName })}
         onDeleteGroup={(groupId) => deleteSubtaskGroupMutation.mutate(groupId)}
         onCopySubtaskUrl={copySubtaskUrl}

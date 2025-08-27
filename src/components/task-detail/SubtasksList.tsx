@@ -21,6 +21,7 @@ interface SubtasksListProps {
   onCompleteSubtask: (subtaskId: string) => void;
   onSkipSubtask: (subtaskId: string) => void;
   onSkipAllSubtasksInGroup: (groupId: string) => void;
+  onCompleteAllSubtasksInGroup: (groupId: string) => void;
   onUpdateGroup: (groupId: string, groupName: string) => void;
   onDeleteGroup: (groupId: string) => void;
   onCopySubtaskUrl: (subtaskId: string) => void;
@@ -38,6 +39,7 @@ export const SubtasksList = ({
   onCompleteSubtask,
   onSkipSubtask,
   onSkipAllSubtasksInGroup,
+  onCompleteAllSubtasksInGroup,
   onUpdateGroup,
   onDeleteGroup,
   onCopySubtaskUrl,
@@ -215,6 +217,7 @@ export const SubtasksList = ({
                         onCompleteSubtask={onCompleteSubtask}
                         onSkipSubtask={onSkipSubtask}
                         onSkipAllSubtasksInGroup={onSkipAllSubtasksInGroup}
+                        onCompleteAllSubtasksInGroup={onCompleteAllSubtasksInGroup}
                         onCopySubtaskUrl={onCopySubtaskUrl}
                         groupEditData={groupEditData}
                         onSetGroupEditData={setGroupEditData}

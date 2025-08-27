@@ -200,6 +200,43 @@ export const subtaskOperations: SubtaskServiceInterface = {
     }
   },
 
+  // Toggle completion status for all subtasks in a group
+  async completeAllSubtasksInGroup(groupId: string): Promise<void> {
+    // First, get all subtasks in the group to check their current completion status
+    const { data: subtasks, error: fetchError } = await supabase
+      .from('subtasks')
+      .select('id, complete_date')
+      .eq('subtask_group_id', groupId);
+
+    if (fetchError) {
+      console.error('Error fetching subtasks in group:', fetchError);
+      throw fetchError;
+    }
+
+    if (!subtasks || subtasks.length === 0) {
+      return; // No subtasks in group
+    }
+
+    // Check if all subtasks are currently completed
+    const allCompleted = subtasks.every(subtask => !!subtask.complete_date);
+    
+    // Toggle: if all are completed, uncomplete them all; otherwise, complete them all
+    const newCompleteDate = allCompleted ? null : new Date().toISOString();
+
+    const { error } = await supabase
+      .from('subtasks')
+      .update({
+        complete_date: newCompleteDate,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('subtask_group_id', groupId);
+
+    if (error) {
+      console.error('Error toggling completion status for all subtasks in group:', error);
+      throw error;
+    }
+  },
+
   // Enhanced reordering functions with proper order index updates
   async reorderSubtasks(subtaskIds: string[], groupId?: string): Promise<void> {
     const promises = subtaskIds.map((id, index) =>
