@@ -163,18 +163,39 @@ export const subtaskOperations: SubtaskServiceInterface = {
     }
   },
 
-  // Skip all subtasks in a group
+  // Toggle skip status for all subtasks in a group
   async skipAllSubtasksInGroup(groupId: string): Promise<void> {
+    // First, get all subtasks in the group to check their current skip status
+    const { data: subtasks, error: fetchError } = await supabase
+      .from('subtasks')
+      .select('id, skipped')
+      .eq('subtask_group_id', groupId);
+
+    if (fetchError) {
+      console.error('Error fetching subtasks in group:', fetchError);
+      throw fetchError;
+    }
+
+    if (!subtasks || subtasks.length === 0) {
+      return; // No subtasks in group
+    }
+
+    // Check if all subtasks are currently skipped
+    const allSkipped = subtasks.every(subtask => subtask.skipped);
+    
+    // Toggle: if all are skipped, unskip them all; otherwise, skip them all
+    const newSkippedStatus = !allSkipped;
+
     const { error } = await supabase
       .from('subtasks')
       .update({
-        skipped: true,
+        skipped: newSkippedStatus,
         updated_at: new Date().toISOString(),
       })
       .eq('subtask_group_id', groupId);
 
     if (error) {
-      console.error('Error skipping all subtasks in group:', error);
+      console.error('Error toggling skip status for all subtasks in group:', error);
       throw error;
     }
   },

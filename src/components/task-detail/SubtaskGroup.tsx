@@ -166,7 +166,7 @@ export const SubtaskGroup = ({
                       className="h-6 px-2 text-xs text-orange-600 hover:text-orange-700"
                       disabled={group.subtasks.length === 0}
                     >
-                      Skip All
+                      {group.subtasks.every((s: any) => s.skipped) ? 'Unskip All' : 'Skip All'}
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
