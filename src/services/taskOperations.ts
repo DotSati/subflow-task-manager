@@ -284,13 +284,14 @@ export const taskOperations: TaskServiceInterface = {
       groupIdMapping[group.id] = newGroup.id;
 
       for (const subtask of group.subtasks) {
+         // Note: File URLs in content are preserved as-is since they include user ID
          const { error: subtaskError } = await supabase
            .from('subtasks')
            .insert({
              task_id: newTaskId,
              subtask_group_id: newGroup.id,
              name: subtask.name,
-             content: subtask.content,
+             content: subtask.content, // File URLs preserved
              due_date: subtask.dueDate ? subtask.dueDate.toISOString().split('T')[0] : null,
              order_index: subtask.orderIndex,
              complete_date: null,
@@ -311,13 +312,14 @@ export const taskOperations: TaskServiceInterface = {
     );
 
     for (const subtask of ungroupedSubtasks) {
+       // Note: File URLs in content are preserved as-is since they include user ID
        const { error: subtaskError } = await supabase
          .from('subtasks')
          .insert({
            task_id: newTaskId,
            subtask_group_id: null,
            name: subtask.name,
-           content: subtask.content,
+           content: subtask.content, // File URLs preserved
            due_date: subtask.dueDate ? subtask.dueDate.toISOString().split('T')[0] : null,
            order_index: subtask.orderIndex,
            complete_date: null,

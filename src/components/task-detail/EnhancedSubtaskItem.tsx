@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CheckCircle2, Circle, Edit, Save, X, Copy, FileText, Trash2, SkipForward, Send } from 'lucide-react';
+import { CheckCircle2, Circle, Edit, Save, X, Copy, FileText, Trash2, SkipForward, Send, Paperclip } from 'lucide-react';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -25,8 +25,10 @@ import { SubtaskFormData } from '@/types/task';
 import { DragHandle } from './DragHandle';
 import { MarkdownRenderer } from '@/components/ui/markdown-renderer';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
+import { FileUpload, AttachedFile } from '@/components/ui/file-upload';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { fileUploadService, UploadedFile } from '@/services/fileUploadService';
 
 interface EnhancedSubtaskItemProps {
   subtask: any;
@@ -58,8 +60,12 @@ export const EnhancedSubtaskItem = ({
     name: subtask.name,
     content: subtask.content || ''
   });
+  const [attachedFiles, setAttachedFiles] = useState<UploadedFile[]>([]);
   const { toast } = useToast();
   const [isSending, setIsSending] = useState(false);
+
+  // Extract existing file URLs from content
+  const existingFiles = fileUploadService.extractFileUrls(subtask.content || '');
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -71,9 +77,29 @@ export const EnhancedSubtaskItem = ({
 
   const handleSave = () => {
     if (editData.name.trim()) {
-      onUpdateSubtask(subtask.id, editData);
+      // Add file links to content
+      let contentWithFiles = editData.content;
+      if (attachedFiles.length > 0) {
+        const fileLinks = attachedFiles.map(file => 
+          `![${file.name}](${file.url})`
+        ).join('\n');
+        contentWithFiles = contentWithFiles 
+          ? `${contentWithFiles}\n\n${fileLinks}` 
+          : fileLinks;
+      }
+      
+      onUpdateSubtask(subtask.id, { ...editData, content: contentWithFiles });
       setIsEditing(false);
+      setAttachedFiles([]);
     }
+  };
+
+  const handleFileUploaded = (file: UploadedFile) => {
+    setAttachedFiles(prev => [...prev, file]);
+  };
+
+  const handleRemoveFile = (fileToRemove: UploadedFile) => {
+    setAttachedFiles(prev => prev.filter(file => file.url !== fileToRemove.url));
   };
 
   const handleCancel = () => {
@@ -81,6 +107,7 @@ export const EnhancedSubtaskItem = ({
       name: subtask.name,
       content: subtask.content || ''
     });
+    setAttachedFiles([]);
     setIsEditing(false);
   };
 
@@ -193,6 +220,24 @@ export const EnhancedSubtaskItem = ({
                 placeholder="Subtask description (Markdown supported)..."
                 rows={3}
               />
+              
+              <div className="space-y-3">
+                <FileUpload onFileUploaded={handleFileUploaded} />
+                {attachedFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-sm font-medium text-gray-700">
+                      New Attached Files:
+                    </span>
+                    {attachedFiles.map((file, index) => (
+                      <AttachedFile
+                        key={index}
+                        file={file}
+                        onRemove={handleRemoveFile}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
               <div className="flex gap-1">
                 <Button size="sm" onClick={handleSave} className="h-6 text-xs">
                   <Save className="h-3 w-3 mr-1" />
@@ -231,6 +276,17 @@ export const EnhancedSubtaskItem = ({
                       )}
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {existingFiles.length > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {}}
+                          className="h-6 w-6 p-0 text-blue-600"
+                          title={`${existingFiles.length} attachment(s)`}
+                        >
+                          <Paperclip className="h-3 w-3" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
