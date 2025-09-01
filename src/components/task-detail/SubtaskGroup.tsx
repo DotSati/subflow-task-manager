@@ -31,6 +31,7 @@ interface SubtaskGroupProps {
   isExpanded: boolean;
   editingGroupId: string | null;
   showAddSubtaskInGroup: string | null;
+  showOnlyIncomplete?: boolean;
   onToggleExpansion: (groupId: string) => void;
   onEditGroup: (groupId: string, groupName: string) => void;
   onUpdateGroup: (groupId: string) => void;
@@ -57,6 +58,7 @@ export const SubtaskGroup = ({
   isExpanded,
   editingGroupId,
   showAddSubtaskInGroup,
+  showOnlyIncomplete = false,
   onToggleExpansion,
   onEditGroup,
   onUpdateGroup,
@@ -262,7 +264,9 @@ export const SubtaskGroup = ({
                   {...provided.droppableProps}
                   className="ml-6 space-y-1 border-l-2 border-gray-100 pl-3"
                 >
-                  {group.subtasks.map((subtask: any, index: number) => (
+                  {group.subtasks
+                    .filter((subtask: any) => !showOnlyIncomplete || !subtask.completeDate)
+                    .map((subtask: any, index: number) => (
                      <EnhancedSubtaskItem
                        key={subtask.id}
                        subtask={subtask}

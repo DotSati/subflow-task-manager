@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Plus } from 'lucide-react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { Task, SubtaskFormData } from '@/types/task';
@@ -51,6 +53,7 @@ export const SubtasksList = ({
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(task.subtaskGroups.map(g => g.id)));
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [groupEditData, setGroupEditData] = useState<{[key: string]: string}>({});
+  const [showOnlyIncomplete, setShowOnlyIncomplete] = useState(false);
 
   // Filter subtasks to only show those that don't belong to any group (sorted by order)
   const ungroupedSubtasks = task.subtasks
@@ -59,6 +62,7 @@ export const SubtasksList = ({
         group.subtasks.some(groupSubtask => groupSubtask.id === subtask.id)
       )
     )
+    .filter(subtask => !showOnlyIncomplete || !subtask.completeDate)
     .sort((a, b) => a.orderIndex - b.orderIndex);
 
   // Sort subtask groups by order
@@ -111,22 +115,34 @@ export const SubtasksList = ({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Subtasks</CardTitle>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAddGroup(true)}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add Group
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => setShowAddSubtask(true)}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add Subtask
-            </Button>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="show-incomplete"
+                checked={showOnlyIncomplete}
+                onCheckedChange={setShowOnlyIncomplete}
+              />
+              <Label htmlFor="show-incomplete" className="text-sm">
+                Show only incomplete
+              </Label>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAddGroup(true)}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add Group
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => setShowAddSubtask(true)}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add Subtask
+              </Button>
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -205,6 +221,7 @@ export const SubtasksList = ({
                         isExpanded={expandedGroups.has(group.id)}
                         editingGroupId={editingGroupId}
                         showAddSubtaskInGroup={showAddSubtaskInGroup}
+                        showOnlyIncomplete={showOnlyIncomplete}
                         onToggleExpansion={toggleGroupExpansion}
                         onEditGroup={handleEditGroup}
                         onUpdateGroup={handleUpdateGroup}
