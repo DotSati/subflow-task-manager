@@ -12,13 +12,21 @@ class FileUploadService {
   async uploadSubtaskAttachment(file: File, userId: string): Promise<UploadedFile> {
     try {
       const fileId = uuidv4();
-      const fileExtension = file.name.split('.').pop();
-      const fileName = `${fileId}.${fileExtension}`;
-      const filePath = `${userId}/${fileName}`;
+      let fileName = file.name;
+      
+      // If it's a generic clipboard file name, generate a better one
+      if (fileName === 'image.png' || fileName === 'blob' || !fileName || fileName.startsWith('image')) {
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+        const extension = file.type.split('/')[1] || 'png';
+        fileName = `screenshot-${timestamp}.${extension}`;
+      }
+      
+      const fileExtension = fileName.split('.').pop();
+      const storagePath = `${userId}/${fileId}.${fileExtension}`;
 
       const { data, error } = await supabase.storage
         .from('subtask-attachments')
-        .upload(filePath, file, {
+        .upload(storagePath, file, {
           cacheControl: '3600',
           upsert: false,
         });
@@ -30,11 +38,11 @@ class FileUploadService {
 
       const { data: publicUrlData } = supabase.storage
         .from('subtask-attachments')
-        .getPublicUrl(filePath);
+        .getPublicUrl(storagePath);
 
       return {
         url: publicUrlData.publicUrl,
-        name: file.name,
+        name: fileName,
         size: file.size,
         type: file.type,
       };

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Upload, X, File, Image, Expand } from 'lucide-react';
@@ -26,7 +26,9 @@ export const FileUpload = ({
 }: FileUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [showPasteHint, setShowPasteHint] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const handleFileSelect = async (file: File) => {
@@ -82,16 +84,58 @@ export const FileUpload = ({
     }
   };
 
+  const handlePaste = async (e: ClipboardEvent) => {
+    e.preventDefault();
+    
+    const items = Array.from(e.clipboardData?.items || []);
+    const imageItem = items.find(item => item.type.startsWith('image/'));
+    
+    if (imageItem) {
+      const file = imageItem.getAsFile();
+      if (file) {
+        // Use the file directly - the backend will generate a proper filename
+        await handleFileSelect(file);
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+      setShowPasteHint(true);
+      setTimeout(() => setShowPasteHint(false), 2000);
+    }
+  };
+
+  // Add paste event listener
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('paste', handlePaste);
+      return () => container.removeEventListener('paste', handlePaste);
+    }
+  }, []);
+
+  // Focus container to enable paste events
+  const handleContainerClick = () => {
+    containerRef.current?.focus();
+  };
+
   return (
     <div
-      className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
+      ref={containerRef}
+      tabIndex={0}
+      className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20 ${
         dragOver 
           ? 'border-primary bg-primary/5' 
+          : showPasteHint
+          ? 'border-blue-400 bg-blue-50'
           : 'border-gray-300 hover:border-gray-400'
       } ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
       onDrop={handleDrop}
       onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
       onDragLeave={() => setDragOver(false)}
+      onKeyDown={handleKeyDown}
+      onClick={handleContainerClick}
     >
       <Input
         ref={fileInputRef}
@@ -107,14 +151,19 @@ export const FileUpload = ({
         <div className="text-sm text-gray-600">
           {isUploading ? (
             'Uploading...'
+          ) : showPasteHint ? (
+            <span className="text-blue-600 font-medium">Ready to paste! Press Ctrl+V (Cmd+V on Mac)</span>
           ) : (
             <>
-              Drop files here or{' '}
+              Drop files here, paste screenshots (Ctrl+V), or{' '}
               <Button
                 type="button"
                 variant="link"
                 className="p-0 h-auto text-primary"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
                 disabled={disabled || isUploading}
               >
                 browse
