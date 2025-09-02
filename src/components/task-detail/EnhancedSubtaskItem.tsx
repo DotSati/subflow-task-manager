@@ -94,15 +94,15 @@ export const EnhancedSubtaskItem = ({
 
   const handleSave = () => {
     if (editData.name.trim()) {
-      // Add file links to content
+      // Add file URLs as hidden references (not as markdown images)
       let contentWithFiles = editData.content;
       if (attachedFiles.length > 0) {
-        const fileLinks = attachedFiles.map(file => 
-          `![${file.name}](${file.url})`
+        const fileReferences = attachedFiles.map(file => 
+          `<!-- attachment: ${file.url} -->`
         ).join('\n');
         contentWithFiles = contentWithFiles 
-          ? `${contentWithFiles}\n\n${fileLinks}` 
-          : fileLinks;
+          ? `${contentWithFiles}\n\n${fileReferences}` 
+          : fileReferences;
       }
       
       onUpdateSubtask(subtask.id, { ...editData, content: contentWithFiles });
@@ -288,6 +288,7 @@ export const EnhancedSubtaskItem = ({
                             content={subtask.content} 
                             compact={false}
                             className="text-xs"
+                            hideAttachments={true}
                           />
                         </div>
                       )}

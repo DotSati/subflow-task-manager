@@ -65,10 +65,24 @@ class FileUploadService {
     }
   }
 
-  // Extract file URLs from markdown content
+  // Extract file URLs from HTML comments and markdown images
   extractFileUrls(content: string): string[] {
     const fileUrlRegex = /https:\/\/[^\s\)]+\/subtask-attachments\/[^\s\)]+/g;
-    return content.match(fileUrlRegex) || [];
+    const commentRegex = /<!-- attachment: (https:\/\/[^\s]+) -->/g;
+    
+    const urls: string[] = [];
+    
+    // Extract from HTML comments
+    let match;
+    while ((match = commentRegex.exec(content)) !== null) {
+      urls.push(match[1]);
+    }
+    
+    // Extract from markdown images (for backward compatibility)
+    const markdownMatches = content.match(fileUrlRegex) || [];
+    urls.push(...markdownMatches);
+    
+    return [...new Set(urls)]; // Remove duplicates
   }
 
   // Check if URL is a subtask attachment

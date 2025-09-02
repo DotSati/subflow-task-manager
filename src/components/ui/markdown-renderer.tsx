@@ -4,18 +4,29 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
 import { cn } from '@/lib/utils';
+import { fileUploadService } from '@/services/fileUploadService';
 
 interface MarkdownRendererProps {
   content: string;
   className?: string;
   compact?: boolean;
+  hideAttachments?: boolean;
 }
 
-export const MarkdownRenderer = ({ content, className, compact = false }: MarkdownRendererProps) => {
+export const MarkdownRenderer = ({ content, className, compact = false, hideAttachments = false }: MarkdownRendererProps) => {
+  // Filter out attachment images if hideAttachments is true
+  let processedContent = content;
+  if (hideAttachments) {
+    // Remove image markdown that contains subtask-attachments URLs
+    processedContent = content.replace(/!\[[^\]]*\]\([^)]*subtask-attachments[^)]*\)/g, '');
+    // Clean up extra newlines left behind
+    processedContent = processedContent.replace(/\n\n+/g, '\n\n').trim();
+  }
+
   // Truncate content if it's too long for compact view
-  const displayContent = compact && content.length > 150 
-    ? content.substring(0, 150) + '...'
-    : content;
+  const displayContent = compact && processedContent.length > 150 
+    ? processedContent.substring(0, 150) + '...'
+    : processedContent;
 
   return (
     <div className={cn(
