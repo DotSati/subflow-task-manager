@@ -63,9 +63,26 @@ export const EnhancedSubtaskItem = ({
   const [attachedFiles, setAttachedFiles] = useState<UploadedFile[]>([]);
   const { toast } = useToast();
   const [isSending, setIsSending] = useState(false);
+  const [showAttachments, setShowAttachments] = useState(false);
 
   // Extract existing file URLs from content
   const existingFiles = fileUploadService.extractFileUrls(subtask.content || '');
+
+  // Convert URLs to UploadedFile objects for display
+  const existingFileObjects: UploadedFile[] = existingFiles.map(url => {
+    const fileName = url.split('/').pop()?.split('?')[0] || 'attachment';
+    const extension = fileName.split('.').pop()?.toLowerCase() || '';
+    const mimeType = extension.startsWith('image') || ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension) 
+      ? `image/${extension}` 
+      : 'application/octet-stream';
+    
+    return {
+      url,
+      name: fileName,
+      size: 0, // Size unknown for existing files
+      type: mimeType
+    };
+  });
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -274,17 +291,30 @@ export const EnhancedSubtaskItem = ({
                           />
                         </div>
                       )}
+                      {showAttachments && existingFileObjects.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          {existingFileObjects.map((file, index) => (
+                            <AttachedFile
+                              key={index}
+                              file={file}
+                              onRemove={() => {}}
+                              canRemove={false}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       {existingFiles.length > 0 && (
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => {}}
+                          onClick={() => setShowAttachments(!showAttachments)}
                           className="h-6 w-6 p-0 text-blue-600"
                           title={`${existingFiles.length} attachment(s)`}
                         >
                           <Paperclip className="h-3 w-3" />
+                          <span className="text-xs ml-1">{existingFiles.length}</span>
                         </Button>
                       )}
                       <Button
