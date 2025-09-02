@@ -1,10 +1,15 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Upload, X, File, Image } from 'lucide-react';
+import { Upload, X, File, Image, Expand } from 'lucide-react';
 import { fileUploadService, UploadedFile } from '@/services/fileUploadService';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 interface FileUploadProps {
   onFileUploaded: (file: UploadedFile) => void;
@@ -129,10 +134,15 @@ interface AttachedFileProps {
   file: UploadedFile;
   onRemove: (file: UploadedFile) => void;
   canRemove?: boolean;
+  showPreview?: boolean;
 }
 
-export const AttachedFile = ({ file, onRemove, canRemove = true }: AttachedFileProps) => {
-  const isImage = file.type.startsWith('image/');
+export const AttachedFile = ({ file, onRemove, canRemove = true, showPreview = false }: AttachedFileProps) => {
+  const isImage = file.type.startsWith('image/') || file.url.match(/\.(jpg|jpeg|png|gif|webp)(\?|$)/i);
+
+  if (showPreview && isImage) {
+    return <ImagePreview file={file} onRemove={canRemove ? onRemove : undefined} />;
+  }
 
   return (
     <div className="flex items-center gap-2 p-2 border border-gray-200 rounded bg-gray-50">
@@ -150,7 +160,7 @@ export const AttachedFile = ({ file, onRemove, canRemove = true }: AttachedFileP
         {file.name}
       </a>
       <span className="text-xs text-gray-500">
-        {(file.size / 1024).toFixed(1)}KB
+        {file.size > 0 ? `${(file.size / 1024).toFixed(1)}KB` : ''}
       </span>
       {canRemove && (
         <Button
@@ -159,6 +169,63 @@ export const AttachedFile = ({ file, onRemove, canRemove = true }: AttachedFileP
           size="sm"
           onClick={() => onRemove(file)}
           className="h-6 w-6 p-0"
+        >
+          <X className="h-3 w-3" />
+        </Button>
+      )}
+    </div>
+  );
+};
+
+interface ImagePreviewProps {
+  file: UploadedFile;
+  onRemove?: (file: UploadedFile) => void;
+}
+
+const ImagePreview = ({ file, onRemove }: ImagePreviewProps) => {
+  return (
+    <div className="relative group">
+      <Dialog>
+        <DialogTrigger asChild>
+          <div className="relative cursor-pointer rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 transition-colors">
+            <img
+              src={file.url}
+              alt={file.name}
+              className="w-20 h-20 object-cover"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+              <Expand className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+          </div>
+        </DialogTrigger>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+          <div className="relative">
+            <img
+              src={file.url}
+              alt={file.name}
+              className="w-full h-auto max-h-[80vh] object-contain"
+            />
+            <div className="absolute top-2 right-2 flex gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => window.open(file.url, '_blank')}
+                className="bg-black bg-opacity-50 text-white hover:bg-opacity-70"
+              >
+                Open Original
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      {onRemove && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => onRemove(file)}
+          className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-red-500 text-white hover:bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
         >
           <X className="h-3 w-3" />
         </Button>

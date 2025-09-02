@@ -292,15 +292,18 @@ export const EnhancedSubtaskItem = ({
                         </div>
                       )}
                       {showAttachments && existingFileObjects.length > 0 && (
-                        <div className="mt-2 space-y-1">
-                          {existingFileObjects.map((file, index) => (
-                            <AttachedFile
-                              key={index}
-                              file={file}
-                              onRemove={() => {}}
-                              canRemove={false}
-                            />
-                          ))}
+                        <div className="mt-2">
+                          <div className="flex flex-wrap gap-2">
+                            {existingFileObjects.map((file, index) => (
+                              <AttachedFile
+                                key={index}
+                                file={file}
+                                onRemove={() => {}}
+                                canRemove={false}
+                                showPreview={true}
+                              />
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
