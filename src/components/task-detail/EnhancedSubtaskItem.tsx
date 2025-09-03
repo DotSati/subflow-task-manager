@@ -318,7 +318,7 @@ export const EnhancedSubtaskItem = ({
                           title={`${existingFiles.length} attachment(s)`}
                         >
                           <Paperclip className="h-3 w-3" />
-                          <span className="text-xs ml-1">{existingFiles.length}</span>
+                          <span className="text-xs">{existingFiles.length}</span>
                         </Button>
                       )}
                       <Button
