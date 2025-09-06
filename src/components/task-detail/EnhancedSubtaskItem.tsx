@@ -64,6 +64,7 @@ export const EnhancedSubtaskItem = ({
   const { toast } = useToast();
   const [isSending, setIsSending] = useState(false);
   const [showAttachments, setShowAttachments] = useState(false);
+  const [selectedTextOnContextMenu, setSelectedTextOnContextMenu] = useState('');
 
   // Extract existing file URLs from content
   const existingFiles = fileUploadService.extractFileUrls(subtask.content || '');
@@ -154,11 +155,15 @@ export const EnhancedSubtaskItem = ({
     }
   };
 
-  const handleCopySelectedText = async () => {
+  const handleContextMenuOpen = () => {
     const selectedText = window.getSelection()?.toString();
-    if (selectedText?.trim()) {
+    setSelectedTextOnContextMenu(selectedText || '');
+  };
+
+  const handleCopySelectedText = async () => {
+    if (selectedTextOnContextMenu?.trim()) {
       try {
-        await navigator.clipboard.writeText(selectedText);
+        await navigator.clipboard.writeText(selectedTextOnContextMenu);
         toast({
           title: "Selected text copied!",
           description: "The selected text has been copied to your clipboard.",
@@ -292,7 +297,7 @@ export const EnhancedSubtaskItem = ({
               </div>
             </div>
           ) : (
-            <ContextMenu>
+            <ContextMenu onOpenChange={(open) => open && handleContextMenuOpen()}>
               <ContextMenuTrigger asChild>
                 <div className="flex-1 min-w-0 group">
                   <div className="flex items-start justify-between">
@@ -409,7 +414,10 @@ export const EnhancedSubtaskItem = ({
               </ContextMenuTrigger>
               
               <ContextMenuContent>
-                <ContextMenuItem onClick={handleCopySelectedText}>
+                <ContextMenuItem 
+                  onClick={handleCopySelectedText}
+                  disabled={!selectedTextOnContextMenu?.trim()}
+                >
                   <Copy className="h-4 w-4 mr-2" />
                   Copy Selected Text
                 </ContextMenuItem>
