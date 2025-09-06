@@ -10,7 +10,7 @@ interface SessionManagerConfig {
 
 const DEFAULT_CONFIG: Required<SessionManagerConfig> = {
   checkInterval: 60000, // Check every minute
-  cleanupInterval: 300000, // Cleanup every 5 minutes
+  cleanupInterval: 172800000, // Cleanup every 2 days
   maxRetries: 3
 };
 
