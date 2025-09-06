@@ -154,6 +154,31 @@ export const EnhancedSubtaskItem = ({
     }
   };
 
+  const handleCopySelectedText = async () => {
+    const selectedText = window.getSelection()?.toString();
+    if (selectedText?.trim()) {
+      try {
+        await navigator.clipboard.writeText(selectedText);
+        toast({
+          title: "Selected text copied!",
+          description: "The selected text has been copied to your clipboard.",
+        });
+      } catch (err) {
+        toast({
+          title: "Failed to copy",
+          description: "Could not copy the selected text to clipboard.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "No text selected",
+        description: "Please select some text first.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleCopyTitle = async () => {
     try {
       await navigator.clipboard.writeText(subtask.name);
@@ -384,6 +409,10 @@ export const EnhancedSubtaskItem = ({
               </ContextMenuTrigger>
               
               <ContextMenuContent>
+                <ContextMenuItem onClick={handleCopySelectedText}>
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy Selected Text
+                </ContextMenuItem>
                 <ContextMenuItem onClick={handleEdit}>
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Subtask
