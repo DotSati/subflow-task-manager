@@ -14,7 +14,7 @@ export const subtaskOperations: SubtaskServiceInterface = {
       .eq('subtask_group_id', subtaskGroupId || null)
       .order('order_index', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     const nextOrderIndex = (lastSubtask?.order_index ?? -1) + 1;
 
