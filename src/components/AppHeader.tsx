@@ -29,7 +29,7 @@ const AppHeader = () => {
   return (
     <header className="border-b bg-white shadow-sm">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-900">Task Manager</h1>
+        <h1 className="text-xl font-bold text-gray-900">Playbooks</h1>
         
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm text-gray-600">
