@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, CheckCircle2, Circle, Copy, ExternalLink, Edit, Save, X } from 'lucide-react';
+import { Calendar, CheckCircle2, Circle, Copy, ExternalLink, Edit, Save, X, RotateCcw, SkipForward } from 'lucide-react';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -20,9 +20,11 @@ interface TaskInfoProps {
   task: Task;
   onUpdateTask: (taskId: string, data: TaskFormData) => void;
   onCompleteTask: (taskId: string) => void;
+  onResetExecution: (taskId: string) => void;
+  onSkipAllSubtasks: (taskId: string) => void;
 }
 
-export const TaskInfo = ({ task, onUpdateTask, onCompleteTask }: TaskInfoProps) => {
+export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution, onSkipAllSubtasks }: TaskInfoProps) => {
   const [isEditingTask, setIsEditingTask] = useState(false);
   const [taskEditData, setTaskEditData] = useState({
     name: task.name,
@@ -108,13 +110,31 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask }: TaskInfoProps) 
                           <p className="text-muted-foreground mt-2">{task.content}</p>
                         )}
                       </div>
-                      <Button
-                        variant="ghost"
-                        onClick={() => setIsEditingTask(true)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          onClick={() => setIsEditingTask(true)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          onClick={() => onResetExecution(task.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Reset execution"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          onClick={() => onSkipAllSubtasks(task.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Skip all subtasks"
+                        >
+                          <SkipForward className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}

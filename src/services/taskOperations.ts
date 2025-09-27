@@ -238,6 +238,54 @@ export const taskOperations: TaskServiceInterface = {
     }
   },
 
+  // Reset execution: reset task and all subtasks completion status and skip status
+  async resetExecution(taskId: string): Promise<void> {
+    // Reset task completion status
+    const { error: taskError } = await supabase
+      .from('tasks')
+      .update({
+        complete_date: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', taskId);
+
+    if (taskError) {
+      console.error('Error resetting task completion:', taskError);
+      throw taskError;
+    }
+
+    // Reset all subtasks completion status and skip status
+    const { error: subtasksError } = await supabase
+      .from('subtasks')
+      .update({
+        complete_date: null,
+        skipped: false,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('task_id', taskId);
+
+    if (subtasksError) {
+      console.error('Error resetting subtasks:', subtasksError);
+      throw subtasksError;
+    }
+  },
+
+  // Skip all subtasks in a task
+  async skipAllSubtasks(taskId: string): Promise<void> {
+    const { error } = await supabase
+      .from('subtasks')
+      .update({
+        skipped: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('task_id', taskId);
+
+    if (error) {
+      console.error('Error skipping all subtasks:', error);
+      throw error;
+    }
+  },
+
   // Copy a task with all subtasks and subtask groups (but without tags)
   async copyTask(taskId: string): Promise<Task> {
     const originalTask = await taskOperations.getTask(taskId);

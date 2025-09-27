@@ -8,6 +8,8 @@ export interface TaskServiceInterface {
   updateTask(taskId: string, data: TaskFormData): Promise<void>;
   deleteTask(taskId: string): Promise<void>;
   toggleTaskComplete(taskId: string): Promise<void>;
+  resetExecution(taskId: string): Promise<void>;
+  skipAllSubtasks(taskId: string): Promise<void>;
   copyTask(taskId: string): Promise<Task>;
 }
 

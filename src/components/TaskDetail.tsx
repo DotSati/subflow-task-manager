@@ -31,6 +31,8 @@ export const TaskDetail = ({ task, onBack, highlightSubtaskId }: TaskDetailProps
     updateSubtaskGroupMutation,
     deleteSubtaskGroupMutation,
     completeTaskMutation,
+    resetExecutionMutation,
+    skipAllSubtasksMutation,
     updateTaskMutation,
     reorderSubtasksMutation,
     reorderSubtaskGroupsMutation,
@@ -62,6 +64,8 @@ export const TaskDetail = ({ task, onBack, highlightSubtaskId }: TaskDetailProps
         task={task}
         onUpdateTask={(taskId, data) => updateTaskMutation.mutate({ taskId, data })}
         onCompleteTask={(taskId) => completeTaskMutation.mutate(taskId)}
+        onResetExecution={(taskId) => resetExecutionMutation.mutate(taskId)}
+        onSkipAllSubtasks={(taskId) => skipAllSubtasksMutation.mutate(taskId)}
       />
 
       <SubtasksList

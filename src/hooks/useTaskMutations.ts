@@ -90,6 +90,16 @@ export const useTaskMutations = (taskId: string) => {
     onSuccess: invalidateQueries,
   });
 
+  const resetExecutionMutation = useMutation({
+    mutationFn: (taskId: string) => taskService.resetExecution(taskId),
+    onSuccess: invalidateQueries,
+  });
+
+  const skipAllSubtasksMutation = useMutation({
+    mutationFn: (taskId: string) => taskService.skipAllSubtasks(taskId),
+    onSuccess: invalidateQueries,
+  });
+
   const updateTaskMutation = useMutation({
     mutationFn: ({ taskId, data }: { taskId: string; data: any }) => 
       taskService.updateTask(taskId, data),
@@ -133,6 +143,8 @@ export const useTaskMutations = (taskId: string) => {
     updateSubtaskGroupMutation,
     deleteSubtaskGroupMutation,
     completeTaskMutation,
+    resetExecutionMutation,
+    skipAllSubtasksMutation,
     updateTaskMutation,
     reorderSubtasksMutation,
     reorderSubtaskGroupsMutation,
