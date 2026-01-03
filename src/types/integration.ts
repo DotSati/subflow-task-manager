@@ -28,7 +28,7 @@ export interface UpdateIntegrationData {
 
 export const INTEGRATION_TYPES = {
   KANBOARD: 'kanboard',
-  // Add more integration types here as needed
+  KANBANDOT: 'kanbandot',
 } as const;
 
 export type IntegrationType = typeof INTEGRATION_TYPES[keyof typeof INTEGRATION_TYPES];
