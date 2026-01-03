@@ -107,7 +107,7 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
                           {task.name}
                         </CardTitle>
                         {task.content && (
-                          <p className="text-muted-foreground mt-2">{task.content}</p>
+                          <p className="text-muted-foreground mt-2 whitespace-pre-wrap break-words">{task.content}</p>
                         )}
                       </div>
                       <div className="flex gap-2">

@@ -303,7 +303,7 @@ export type Database = {
     }
     Functions: {
       get_random_quote: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           id: string

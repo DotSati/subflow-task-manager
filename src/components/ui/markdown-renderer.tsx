@@ -30,7 +30,7 @@ export const MarkdownRenderer = ({ content, className, compact = false, hideAtta
 
   return (
     <div className={cn(
-      "prose prose-sm max-w-none",
+      "prose prose-sm max-w-none break-words [overflow-wrap:anywhere]",
       compact && "line-clamp-2",
       className
     )}>
