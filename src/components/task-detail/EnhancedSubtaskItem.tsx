@@ -62,7 +62,8 @@ export const EnhancedSubtaskItem = ({
   });
   const [attachedFiles, setAttachedFiles] = useState<UploadedFile[]>([]);
   const { toast } = useToast();
-  const [isSending, setIsSending] = useState(false);
+  const [isSendingKanboard, setIsSendingKanboard] = useState(false);
+  const [isSendingKanbandot, setIsSendingKanbandot] = useState(false);
   const [showAttachments, setShowAttachments] = useState(false);
   const [selectedTextOnContextMenu, setSelectedTextOnContextMenu] = useState('');
 
@@ -202,7 +203,7 @@ export const EnhancedSubtaskItem = ({
 
   const handleSendToKanboard = async () => {
     try {
-      setIsSending(true);
+      setIsSendingKanboard(true);
 
       const { data, error } = await supabase.functions.invoke('kanboard-proxy', {
         body: {
@@ -212,7 +213,7 @@ export const EnhancedSubtaskItem = ({
         },
       });
 
-      setIsSending(false);
+      setIsSendingKanboard(false);
 
       if (error) {
         toast({ title: 'Failed to send to Kanboard', description: error.message || 'Unknown error', variant: 'destructive' });
@@ -221,8 +222,33 @@ export const EnhancedSubtaskItem = ({
 
       toast({ title: 'Sent to Kanboard', description: 'Task created successfully in Kanboard.' });
     } catch (error: any) {
-      setIsSending(false);
+      setIsSendingKanboard(false);
       toast({ title: 'Error', description: error?.message || 'Could not send to Kanboard.', variant: 'destructive' });
+    }
+  };
+
+  const handleSendToKanbandot = async () => {
+    try {
+      setIsSendingKanbandot(true);
+
+      const { data, error } = await supabase.functions.invoke('kanbandot-proxy', {
+        body: {
+          title: subtask.name,
+          description: subtask.content || '',
+        },
+      });
+
+      setIsSendingKanbandot(false);
+
+      if (error) {
+        toast({ title: 'Failed to send to Kanbandot', description: error.message || 'Unknown error', variant: 'destructive' });
+        return;
+      }
+
+      toast({ title: 'Sent to Kanbandot', description: 'Subtask sent successfully to Kanbandot.' });
+    } catch (error: any) {
+      setIsSendingKanbandot(false);
+      toast({ title: 'Error', description: error?.message || 'Could not send to Kanbandot.', variant: 'destructive' });
     }
   };
 
@@ -440,9 +466,13 @@ export const EnhancedSubtaskItem = ({
                   <Copy className="h-4 w-4 mr-2" />
                   Copy Subtask Link
                 </ContextMenuItem>
-                <ContextMenuItem onClick={handleSendToKanboard} disabled={isSending}>
+                <ContextMenuItem onClick={handleSendToKanboard} disabled={isSendingKanboard}>
                   <Send className="h-4 w-4 mr-2" />
                   Send to Kanboard
+                </ContextMenuItem>
+                <ContextMenuItem onClick={handleSendToKanbandot} disabled={isSendingKanbandot}>
+                  <Send className="h-4 w-4 mr-2" />
+                  Send to Kanbandot
                 </ContextMenuItem>
               </ContextMenuContent>
             </ContextMenu>
