@@ -107,47 +107,50 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
                     {task.content && (
                       <p className="text-muted-foreground mt-2 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{task.content}</p>
                     )}
-                    <div className="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsEditingTask(true)}
-                        title="Edit task"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onResetExecution(task.id)}
-                        title="Reset execution"
-                      >
-                        <RotateCcw className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onSkipAllSubtasks(task.id)}
-                        title="Skip all subtasks"
-                      >
-                        <SkipForward className="h-4 w-4" />
-                      </Button>
-                    </div>
                   </div>
                 )}
               </div>
               {!isEditingTask && (
-                <Button
-                  variant="ghost"
-                  onClick={() => onCompleteTask(task.id)}
-                  className="h-10 w-10 p-0 shrink-0"
-                >
-                  {isCompleted ? (
-                    <CheckCircle2 className="h-6 w-6 text-green-600" />
-                  ) : (
-                    <Circle className="h-6 w-6" />
-                  )}
-                </Button>
+                <div className="flex items-center gap-1 shrink-0 group">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditingTask(true)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Edit task"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onResetExecution(task.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Reset execution"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onSkipAllSubtasks(task.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Skip all subtasks"
+                  >
+                    <SkipForward className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => onCompleteTask(task.id)}
+                    className="h-10 w-10 p-0"
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 className="h-6 w-6 text-green-600" />
+                    ) : (
+                      <Circle className="h-6 w-6" />
+                    )}
+                  </Button>
+                </div>
               )}
             </div>
             
