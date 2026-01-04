@@ -190,7 +190,11 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
           <ExternalLink className="h-4 w-4 mr-2" />
           Open in New Window
         </ContextMenuItem>
-        <ContextMenuItem onClick={() => exportTaskToPdf(task)}>
+        <ContextMenuItem onClick={async () => {
+          toast({ title: "Generating PDF...", description: "Please wait" });
+          await exportTaskToPdf(task);
+          toast({ title: "PDF exported", description: "Task has been exported to PDF" });
+        }}>
           <FileDown className="h-4 w-4 mr-2" />
           Export to PDF
         </ContextMenuItem>
