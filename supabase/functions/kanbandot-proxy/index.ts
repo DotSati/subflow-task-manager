@@ -55,11 +55,9 @@ serve(async (req: Request) => {
     }
 
     const payload = {
-      body: {
-        user: username || 'unknown',
-        title,
-        description: description || '',
-      },
+      user: username || 'unknown',
+      title,
+      description: description || '',
     };
 
     console.log('Sending request to Kanbandot webhook:', { webhookUrl, user: username });
