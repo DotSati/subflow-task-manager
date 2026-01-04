@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, CheckCircle2, Circle, Copy, ExternalLink, Edit, Save, X, RotateCcw, SkipForward } from 'lucide-react';
+import { Calendar, CheckCircle2, Circle, Copy, ExternalLink, Edit, Save, X, RotateCcw, SkipForward, FileDown } from 'lucide-react';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -15,6 +15,7 @@ import {
 import { Task, TaskFormData } from '@/types/task';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { exportTaskToPdf } from '@/utils/pdfExport';
 
 interface TaskInfoProps {
   task: Task;
@@ -188,6 +189,10 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
         <ContextMenuItem onClick={openTaskInNewWindow}>
           <ExternalLink className="h-4 w-4 mr-2" />
           Open in New Window
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => exportTaskToPdf(task)}>
+          <FileDown className="h-4 w-4 mr-2" />
+          Export to PDF
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
