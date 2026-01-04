@@ -67,9 +67,6 @@ serve(async (req: Request) => {
       type,
       url,
       username,
-      // Explicitly avoid storing plaintext secrets
-      password: null,
-      api_key: null,
     };
 
     // Encrypt secrets when provided and key available; otherwise leave as null
