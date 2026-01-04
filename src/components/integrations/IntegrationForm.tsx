@@ -98,6 +98,7 @@ export function IntegrationForm({ integration, onSubmit, onCancel, isLoading }: 
                     </FormControl>
                     <SelectContent>
                       <SelectItem value={INTEGRATION_TYPES.KANBOARD}>Kanboard</SelectItem>
+                      <SelectItem value={INTEGRATION_TYPES.KANBANDOT}>Kanbandot</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
