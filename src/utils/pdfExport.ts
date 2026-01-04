@@ -1,17 +1,38 @@
 import jsPDF from 'jspdf';
 import { Task } from '@/types/task';
 import { format } from 'date-fns';
+import RobotoFont from '@/assets/fonts/Roboto-Regular.ttf';
 
-export const exportTaskToPdf = (task: Task) => {
+const loadFontAsBase64 = async (url: string): Promise<string> => {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = (reader.result as string).split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+export const exportTaskToPdf = async (task: Task) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
   const contentWidth = pageWidth - margin * 2;
   let yPosition = 20;
 
+  // Load and register Roboto font for Cyrillic support
+  const fontBase64 = await loadFontAsBase64(RobotoFont);
+  doc.addFileToVFS('Roboto-Regular.ttf', fontBase64);
+  doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
+  doc.setFont('Roboto');
+
   const addText = (text: string, fontSize: number, isBold = false, color: [number, number, number] = [0, 0, 0]) => {
     doc.setFontSize(fontSize);
-    doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+    doc.setFont('Roboto', 'normal');
     doc.setTextColor(...color);
     const lines = doc.splitTextToSize(text, contentWidth);
     
