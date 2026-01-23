@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { taskService } from '@/services/taskService';
-import { TaskFormData, SubtaskFormData } from '@/types/task';
+import { TaskFormData, SubtaskFormData, Task } from '@/types/task';
 import { useToast } from '@/hooks/use-toast';
 
 export const useTaskMutations = () => {
@@ -13,8 +13,8 @@ export const useTaskMutations = () => {
   // Create task mutation
   const createTaskMutation = useMutation({
     mutationFn: taskService.createTask,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    onSuccess: (newTask) => {
+      queryClient.setQueryData<Task[]>(['tasks'], (old = []) => [newTask, ...old]);
       toast({
         title: 'Success',
         description: 'Task created successfully',
@@ -34,14 +34,22 @@ export const useTaskMutations = () => {
   const updateTaskMutation = useMutation({
     mutationFn: ({ taskId, taskData }: { taskId: string; taskData: TaskFormData }) =>
       taskService.updateTask(taskId, taskData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      toast({
-        title: 'Success',
-        description: 'Task updated successfully',
-      });
+    onMutate: async ({ taskId, taskData }) => {
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+      const previousTasks = queryClient.getQueryData<Task[]>(['tasks']);
+      queryClient.setQueryData<Task[]>(['tasks'], (old = []) =>
+        old.map((task) =>
+          task.id === taskId
+            ? { ...task, name: taskData.name, content: taskData.content, dueDate: taskData.dueDate }
+            : task
+        )
+      );
+      return { previousTasks };
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData(['tasks'], context.previousTasks);
+      }
       toast({
         title: 'Error',
         description: 'Failed to update task',
@@ -49,19 +57,32 @@ export const useTaskMutations = () => {
       });
       console.error('Update task error:', error);
     },
+    onSuccess: () => {
+      toast({
+        title: 'Success',
+        description: 'Task updated successfully',
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
   });
 
   // Delete task mutation
   const deleteTaskMutation = useMutation({
     mutationFn: taskService.deleteTask,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      toast({
-        title: 'Success',
-        description: 'Task deleted successfully',
-      });
+    onMutate: async (taskId) => {
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+      const previousTasks = queryClient.getQueryData<Task[]>(['tasks']);
+      queryClient.setQueryData<Task[]>(['tasks'], (old = []) =>
+        old.filter((task) => task.id !== taskId)
+      );
+      return { previousTasks };
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData(['tasks'], context.previousTasks);
+      }
       toast({
         title: 'Error',
         description: 'Failed to delete task',
@@ -69,19 +90,33 @@ export const useTaskMutations = () => {
       });
       console.error('Delete task error:', error);
     },
+    onSuccess: () => {
+      toast({
+        title: 'Success',
+        description: 'Task deleted successfully',
+      });
+    },
   });
 
   // Toggle task completion mutation
   const toggleCompleteMutation = useMutation({
     mutationFn: taskService.toggleTaskComplete,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      toast({
-        title: 'Success',
-        description: 'Task status updated',
-      });
+    onMutate: async (taskId) => {
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+      const previousTasks = queryClient.getQueryData<Task[]>(['tasks']);
+      queryClient.setQueryData<Task[]>(['tasks'], (old = []) =>
+        old.map((task) =>
+          task.id === taskId
+            ? { ...task, completeDate: task.completeDate ? null : new Date() }
+            : task
+        )
+      );
+      return { previousTasks };
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData(['tasks'], context.previousTasks);
+      }
       toast({
         title: 'Error',
         description: 'Failed to update task status',
@@ -89,18 +124,20 @@ export const useTaskMutations = () => {
       });
       console.error('Toggle complete error:', error);
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
   });
 
   // Copy task mutation
   const copyTaskMutation = useMutation({
     mutationFn: taskService.copyTask,
     onSuccess: (newTask) => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.setQueryData<Task[]>(['tasks'], (old = []) => [newTask, ...old]);
       toast({
         title: 'Success',
         description: 'Task copied successfully',
       });
-      // Navigate to the new copied task
       navigate(`/task/${newTask.id}`);
     },
     onError: (error) => {
@@ -183,10 +220,6 @@ export const useTaskMutations = () => {
     mutationFn: (subtaskId: string) => taskService.toggleSubtaskComplete(subtaskId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      toast({
-        title: 'Success',
-        description: 'Subtask status updated',
-      });
     },
     onError: (error) => {
       toast({
