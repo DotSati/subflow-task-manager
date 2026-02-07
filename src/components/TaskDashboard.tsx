@@ -8,6 +8,7 @@ import { TaskForm } from '@/components/TaskForm';
 import { TaskDetail } from '@/components/TaskDetail';
 import { TaskFilters } from '@/components/task-dashboard/TaskFilters';
 import { TaskList } from '@/components/task-dashboard/TaskList';
+import { TaskListSkeleton } from '@/components/task-dashboard/TaskListSkeleton';
 import { useTaskMutations } from '@/components/task-dashboard/useTaskMutations';
 import { Task, TaskFormData } from '@/types/task';
 
@@ -126,11 +127,15 @@ export const TaskDashboard = ({ onOpenIntegrations }: { onOpenIntegrations?: () 
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading tasks...</p>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900">Your Tasks</h2>
+          <Button disabled>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Task
+          </Button>
         </div>
+        <TaskListSkeleton count={8} />
       </div>
     );
   }
