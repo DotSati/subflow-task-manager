@@ -1,4 +1,5 @@
-
+import { useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { TaskCard } from '@/components/TaskCard';
@@ -18,6 +19,8 @@ interface TaskListProps {
   onCreateTask: () => void;
 }
 
+const ESTIMATED_TASK_HEIGHT = 80;
+
 export const TaskList = ({
   tasks,
   filteredTasks,
@@ -31,6 +34,15 @@ export const TaskList = ({
   onTagClick,
   onCreateTask,
 }: TaskListProps) => {
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: filteredTasks.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => ESTIMATED_TASK_HEIGHT,
+    overscan: 5,
+  });
+
   if (filteredTasks.length === 0) {
     return (
       <div className="text-center py-12">
@@ -51,20 +63,49 @@ export const TaskList = ({
     );
   }
 
+  const items = virtualizer.getVirtualItems();
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      {filteredTasks.map((task) => (
-        <TaskCard
-          key={task.id}
-          task={task}
-          onComplete={onToggleComplete}
-          onClick={(task) => onOpenTask(task.id)}
-          onCopy={onCopyTask}
-          onDelete={onDeleteTask}
-          onEdit={onEditTask}
-          onTagClick={onTagClick}
-        />
-      ))}
+    <div
+      ref={parentRef}
+      className="bg-white rounded-lg border border-gray-200 overflow-auto"
+      style={{ maxHeight: '70vh' }}
+    >
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        {items.map((virtualItem) => {
+          const task = filteredTasks[virtualItem.index];
+          return (
+            <div
+              key={virtualItem.key}
+              data-index={virtualItem.index}
+              ref={virtualizer.measureElement}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                transform: `translateY(${virtualItem.start}px)`,
+              }}
+            >
+              <TaskCard
+                task={task}
+                onComplete={onToggleComplete}
+                onClick={(task) => onOpenTask(task.id)}
+                onCopy={onCopyTask}
+                onDelete={onDeleteTask}
+                onEdit={onEditTask}
+                onTagClick={onTagClick}
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
