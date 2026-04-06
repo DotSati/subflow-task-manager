@@ -4,16 +4,12 @@ import { TaskServiceInterface } from "./types";
 
 export const taskOperations: TaskServiceInterface = {
   // Get all tasks for the current user with subtasks, subtask groups, and tags
+  // Lightweight query for task list - no subtask details needed
   async getTasks(): Promise<Task[]> {
     const { data: tasks, error } = await supabase
       .from('tasks')
       .select(`
         *,
-        subtasks (*),
-        subtask_groups (
-          *,
-          subtasks (*)
-        ),
         task_tags (
           tags (*)
         )
@@ -31,34 +27,8 @@ export const taskOperations: TaskServiceInterface = {
       completeDate: task.complete_date ? new Date(task.complete_date) : undefined,
       createdAt: new Date(task.created_at),
       updatedAt: new Date(task.updated_at),
-      subtasks: task.subtasks
-        .map((subtask: any) => ({
-          ...subtask,
-          dueDate: subtask.due_date ? new Date(subtask.due_date) : undefined,
-          completeDate: subtask.complete_date ? new Date(subtask.complete_date) : undefined,
-          createdAt: new Date(subtask.created_at),
-          updatedAt: new Date(subtask.updated_at),
-          orderIndex: subtask.order_index ?? 0,
-        }))
-        .sort((a: any, b: any) => a.orderIndex - b.orderIndex),
-      subtaskGroups: task.subtask_groups
-        .map((group: any) => ({
-          ...group,
-          createdAt: new Date(group.created_at),
-          updatedAt: new Date(group.updated_at),
-          orderIndex: group.order_index ?? 0,
-          subtasks: group.subtasks
-            .map((subtask: any) => ({
-              ...subtask,
-              dueDate: subtask.due_date ? new Date(subtask.due_date) : undefined,
-              completeDate: subtask.complete_date ? new Date(subtask.complete_date) : undefined,
-              createdAt: new Date(subtask.created_at),
-              updatedAt: new Date(subtask.updated_at),
-              orderIndex: subtask.order_index ?? 0,
-            }))
-            .sort((a: any, b: any) => a.orderIndex - b.orderIndex),
-        }))
-        .sort((a: any, b: any) => a.orderIndex - b.orderIndex),
+      subtasks: [],
+      subtaskGroups: [],
       tags: task.task_tags?.map((taskTag: any) => ({
         ...taskTag.tags,
         createdAt: new Date(taskTag.tags.created_at),
