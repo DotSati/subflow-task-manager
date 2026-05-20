@@ -1,12 +1,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, X } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { taskService } from '@/services/taskService';
-import { Tag } from '@/types/tag';
 import { TagBadge } from './TagBadge';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,7 +14,7 @@ interface TagSelectorProps {
 }
 
 const DEFAULT_COLORS = [
-  '#3B82F6', '#EF4444', '#10B981', '#F59E0B', 
+  '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
   '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'
 ];
 
@@ -40,26 +38,32 @@ export const TagSelector = ({ selectedTagIds, onTagsChange }: TagSelectorProps) 
       onTagsChange([...selectedTagIds, newTag.id]);
       setNewTagName('');
       setNewTagColor(DEFAULT_COLORS[0]);
-      toast({
-        title: 'Success',
-        description: 'Tag created successfully',
-      });
+      toast({ title: 'Success', description: 'Tag created successfully' });
     },
     onError: () => {
-      toast({
-        title: 'Error',
-        description: 'Failed to create tag',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Failed to create tag', variant: 'destructive' });
     },
   });
 
-  const selectedTags = tags.filter(tag => selectedTagIds.includes(tag.id));
-  const availableTags = tags.filter(tag => !selectedTagIds.includes(tag.id));
+  const deleteTagMutation = useMutation({
+    mutationFn: (tagId: string) => taskService.deleteTag(tagId),
+    onSuccess: (_, tagId) => {
+      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      onTagsChange(selectedTagIds.filter((id) => id !== tagId));
+      toast({ title: 'Success', description: 'Tag deleted' });
+    },
+    onError: () => {
+      toast({ title: 'Error', description: 'Failed to delete tag', variant: 'destructive' });
+    },
+  });
+
+  const selectedTags = tags.filter((tag) => selectedTagIds.includes(tag.id));
+  const availableTags = tags.filter((tag) => !selectedTagIds.includes(tag.id));
 
   const handleTagToggle = (tagId: string) => {
     if (selectedTagIds.includes(tagId)) {
-      onTagsChange(selectedTagIds.filter(id => id !== tagId));
+      onTagsChange(selectedTagIds.filter((id) => id !== tagId));
     } else {
       onTagsChange([...selectedTagIds, tagId]);
     }
@@ -67,10 +71,14 @@ export const TagSelector = ({ selectedTagIds, onTagsChange }: TagSelectorProps) 
 
   const handleCreateTag = () => {
     if (newTagName.trim()) {
-      createTagMutation.mutate({
-        name: newTagName.trim(),
-        color: newTagColor,
-      });
+      createTagMutation.mutate({ name: newTagName.trim(), color: newTagColor });
+    }
+  };
+
+  const handleDeleteTag = (e: React.MouseEvent, tagId: string, tagName: string) => {
+    e.stopPropagation();
+    if (confirm(`Delete tag "${tagName}"? It will be removed from all tasks.`)) {
+      deleteTagMutation.mutate(tagId);
     }
   };
 
@@ -80,7 +88,6 @@ export const TagSelector = ({ selectedTagIds, onTagsChange }: TagSelectorProps) 
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -88,7 +95,6 @@ export const TagSelector = ({ selectedTagIds, onTagsChange }: TagSelectorProps) 
   return (
     <div ref={containerRef} className="relative">
       <div className="space-y-2">
-        {/* Selected Tags */}
         {selectedTags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {selectedTags.map((tag) => (
@@ -103,7 +109,6 @@ export const TagSelector = ({ selectedTagIds, onTagsChange }: TagSelectorProps) 
           </div>
         )}
 
-        {/* Add Tag Button */}
         <Button
           type="button"
           variant="outline"
@@ -112,30 +117,48 @@ export const TagSelector = ({ selectedTagIds, onTagsChange }: TagSelectorProps) 
           className="text-xs"
         >
           <Plus className="h-3 w-3 mr-1" />
-          Add Tags
+          Manage Tags
         </Button>
       </div>
 
-      {/* Tag Selector Dropdown */}
       {isOpen && (
         <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-3 space-y-3">
-          {/* Available Tags */}
-          {availableTags.length > 0 && (
+          {tags.length > 0 && (
             <div>
-              <p className="text-xs text-gray-500 mb-2">Available Tags:</p>
-              <div className="flex flex-wrap gap-1">
-                {availableTags.map((tag) => (
-                  <TagBadge
-                    key={tag.id}
-                    tag={tag}
-                    onClick={() => handleTagToggle(tag.id)}
-                  />
-                ))}
+              <p className="text-xs text-gray-500 mb-2">All Tags:</p>
+              <div className="space-y-1 max-h-48 overflow-auto">
+                {tags.map((tag) => {
+                  const isSelected = selectedTagIds.includes(tag.id);
+                  return (
+                    <div key={tag.id} className="flex items-center justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <TagBadge
+                          tag={tag}
+                          onClick={() => handleTagToggle(tag.id)}
+                          clickable
+                        />
+                        {isSelected && (
+                          <span className="text-xs text-gray-400 ml-2">selected</span>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={(e) => handleDeleteTag(e, tag.id, tag.name)}
+                        title="Delete tag"
+                        disabled={deleteTagMutation.isPending}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* Create New Tag */}
           <div className="border-t pt-3">
             <p className="text-xs text-gray-500 mb-2">Create New Tag:</p>
             <div className="flex gap-2">
