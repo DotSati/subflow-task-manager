@@ -16,6 +16,9 @@ import { Task, TaskFormData } from '@/types/task';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { exportTaskToPdf } from '@/utils/pdfExport';
+import { Label } from '@/components/ui/label';
+import { TagSelector } from '@/components/tag/TagSelector';
+import { TagBadge } from '@/components/tag/TagBadge';
 
 interface TaskInfoProps {
   task: Task;
@@ -29,7 +32,8 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
   const [isEditingTask, setIsEditingTask] = useState(false);
   const [taskEditData, setTaskEditData] = useState({
     name: task.name,
-    content: task.content || ''
+    content: task.content || '',
+    tagIds: task.tags?.map((t) => t.id) || [],
   });
 
   const { toast } = useToast();
