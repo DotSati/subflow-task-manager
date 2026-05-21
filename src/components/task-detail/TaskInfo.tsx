@@ -95,6 +95,13 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
                       placeholder="Task description..."
                       rows={3}
                     />
+                    <div className="space-y-2">
+                      <Label>Tags</Label>
+                      <TagSelector
+                        selectedTagIds={taskEditData.tagIds}
+                        onTagsChange={(tagIds) => setTaskEditData((prev) => ({ ...prev, tagIds }))}
+                      />
+                    </div>
                     <div className="flex gap-2">
                       <Button onClick={handleUpdateTask}>
                         <Save className="h-4 w-4 mr-2" />
