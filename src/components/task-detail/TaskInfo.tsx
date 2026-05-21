@@ -59,7 +59,8 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
       onUpdateTask(task.id, {
         name: taskEditData.name,
         content: taskEditData.content,
-        dueDate: task.dueDate
+        dueDate: task.dueDate,
+        tagIds: taskEditData.tagIds,
       });
       setIsEditingTask(false);
     }
@@ -68,7 +69,8 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
   const handleCancelTaskEdit = () => {
     setTaskEditData({
       name: task.name,
-      content: task.content || ''
+      content: task.content || '',
+      tagIds: task.tags?.map((t) => t.id) || [],
     });
     setIsEditingTask(false);
   };
