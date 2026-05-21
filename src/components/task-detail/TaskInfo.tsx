@@ -16,6 +16,9 @@ import { Task, TaskFormData } from '@/types/task';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { exportTaskToPdf } from '@/utils/pdfExport';
+import { Label } from '@/components/ui/label';
+import { TagSelector } from '@/components/tag/TagSelector';
+import { TagBadge } from '@/components/tag/TagBadge';
 
 interface TaskInfoProps {
   task: Task;
@@ -29,7 +32,8 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
   const [isEditingTask, setIsEditingTask] = useState(false);
   const [taskEditData, setTaskEditData] = useState({
     name: task.name,
-    content: task.content || ''
+    content: task.content || '',
+    tagIds: task.tags?.map((t) => t.id) || [],
   });
 
   const { toast } = useToast();
@@ -55,7 +59,8 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
       onUpdateTask(task.id, {
         name: taskEditData.name,
         content: taskEditData.content,
-        dueDate: task.dueDate
+        dueDate: task.dueDate,
+        tagIds: taskEditData.tagIds,
       });
       setIsEditingTask(false);
     }
@@ -64,7 +69,8 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
   const handleCancelTaskEdit = () => {
     setTaskEditData({
       name: task.name,
-      content: task.content || ''
+      content: task.content || '',
+      tagIds: task.tags?.map((t) => t.id) || [],
     });
     setIsEditingTask(false);
   };
@@ -89,6 +95,13 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
                       placeholder="Task description..."
                       rows={3}
                     />
+                    <div className="space-y-2">
+                      <Label>Tags</Label>
+                      <TagSelector
+                        selectedTagIds={taskEditData.tagIds}
+                        onTagsChange={(tagIds) => setTaskEditData((prev) => ({ ...prev, tagIds }))}
+                      />
+                    </div>
                     <div className="flex gap-2">
                       <Button onClick={handleUpdateTask}>
                         <Save className="h-4 w-4 mr-2" />
@@ -155,7 +168,7 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
               )}
             </div>
             
-            <div className="flex gap-2 mt-4">
+            <div className="flex flex-wrap gap-2 mt-4">
               {task.dueDate && (
                 <Badge variant={isOverdue ? "destructive" : "outline"} className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
@@ -172,6 +185,9 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
                   Overdue
                 </Badge>
               )}
+              {task.tags?.map((tag) => (
+                <TagBadge key={tag.id} tag={tag} clickable={false} />
+              ))}
             </div>
           </CardHeader>
         </Card>
