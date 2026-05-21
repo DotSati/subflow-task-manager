@@ -59,6 +59,11 @@ export const TaskDashboard = ({ onOpenIntegrations }: { onOpenIntegrations?: () 
       task.tags.some(tag => selectedTagIds.includes(tag.id));
     
     return passesCompletionFilter && passesTagFilter;
+  }).sort((a, b) => {
+    const aHasTags = (a.tags?.length ?? 0) > 0;
+    const bHasTags = (b.tags?.length ?? 0) > 0;
+    if (aHasTags !== bHasTags) return aHasTags ? 1 : -1;
+    return b.createdAt.getTime() - a.createdAt.getTime();
   });
 
   const handleCreateTask = (taskData: TaskFormData) => {
