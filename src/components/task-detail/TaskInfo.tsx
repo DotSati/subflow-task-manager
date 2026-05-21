@@ -168,7 +168,7 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
               )}
             </div>
             
-            <div className="flex gap-2 mt-4">
+            <div className="flex flex-wrap gap-2 mt-4">
               {task.dueDate && (
                 <Badge variant={isOverdue ? "destructive" : "outline"} className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
@@ -185,6 +185,9 @@ export const TaskInfo = ({ task, onUpdateTask, onCompleteTask, onResetExecution,
                   Overdue
                 </Badge>
               )}
+              {task.tags?.map((tag) => (
+                <TagBadge key={tag.id} tag={tag} clickable={false} />
+              ))}
             </div>
           </CardHeader>
         </Card>
